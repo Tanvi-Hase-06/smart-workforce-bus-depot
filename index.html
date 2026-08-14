@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#5b2bd6"><link rel="manifest" href="manifest.webmanifest">
+<title>LALPARI • Smart Workforce</title>
+<style>
+:root{--p:#5b2bd6;--bg:#f5f3fb;--text:#17152a;--muted:#77738a;--line:#e9e6f0;--green:#159447;--red:#e53935;--orange:#d98200}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text)}
+.app{width:100%;max-width:460px;min-height:100vh;margin:auto;background:#fff}.hide{display:none!important}
+header{position:sticky;top:0;z-index:4;background:#fff;padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.logo{font-weight:900;font-size:22px;color:#df3838}.sub{font-size:11px;color:#777}
+main{padding:16px 15px 92px}.title{font-size:21px;font-weight:850}.muted{font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0;background:#fff;box-shadow:0 2px 10px #22104a06}
+.stat{background:#faf9ff;border-radius:13px;padding:12px;border:1px solid var(--line)}.stat b{font-size:22px}.stat span{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+.btn{border:0;border-radius:11px;padding:12px 14px;font-weight:750;cursor:pointer}.primary{background:var(--p);color:#fff}.secondary{background:#eee9ff;color:#5228c5}.danger{background:#ffe9e8;color:#c92e28}.small{padding:7px 10px;font-size:11px}
+.input,.select,.textarea{width:100%;padding:12px;border:1px solid #dcd8e6;border-radius:10px;margin:6px 0;background:#fff;font:inherit}.textarea{min-height:80px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,460px);height:70px;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;z-index:5}.nav button{border:0;background:none;color:#777;font-size:10px}.nav .active{color:var(--p)}.nav i{font-style:normal;font-size:19px;display:block}
+.screen{display:none}.screen.active{display:block}.row{display:flex;justify-content:space-between;align-items:center;gap:8px}.badge{font-size:10px;padding:5px 8px;border-radius:99px;background:#eee}.ok{color:var(--green)}.red{color:var(--red)}.orange{color:var(--orange)}
+.login{min-height:100vh;padding:70px 24px;background:#fff}.login h1{text-align:center;font-size:34px;color:#df3838}.login .bus{text-align:center;font-size:42px}.login .sub{text-align:center;font-size:14px;margin-bottom:35px}.toast{position:fixed;z-index:20;bottom:82px;left:50%;transform:translateX(-50%);background:#18162c;color:#fff;padding:11px 15px;border-radius:10px;font-size:12px;display:none;max-width:90%}
+.modal{position:fixed;inset:0;background:#0008;z-index:10;display:none;align-items:center;justify-content:center;padding:18px}.modal.show{display:flex}.modalbox{background:#fff;border-radius:18px;padding:18px;width:100%;max-width:400px;max-height:88vh;overflow:auto}
+.bar{height:9px;background:#eee;border-radius:99px;overflow:hidden}.bar>span{display:block;height:100%;background:var(--p)}
+</style></head><body>
+<div id="login" class="app"><div class="login"><div class="bus">🚌</div><h1>LALPARI</h1><div class="sub">Smart Workforce & Operations</div>
+<input id="uid" class="input" value="ADMIN001" placeholder="Employee ID"><input id="pwd" class="input" value="1234" type="password" placeholder="Password"><button class="btn primary" style="width:100%;margin-top:8px" onclick="login()">Login</button>
+<div class="card"><b>Demo accounts</b><p class="muted">Admin: ADMIN001 / 1234<br>Employee: EMP1001 / 1234</p></div>
+</div></div>
+
+<div id="app" class="app hide"><header><div><div class="logo">🚌 LALPARI</div><div class="sub">Smart Workforce & Operations</div></div><div id="userBadge" class="badge"></div></header><main>
+<section id="dashboard" class="screen active"><div class="title">Sangamner Depot</div><div class="muted">Live operations dashboard</div><div id="stats" class="grid" style="margin-top:12px"></div>
+<div class="card"><div class="row"><b>AI Daily Insights</b><span class="badge">LIVE</span></div><p id="insights" class="muted"></p></div>
+<div class="card"><b>Quick Actions</b><div class="grid" style="margin-top:10px"><button class="btn secondary" onclick="openAddEmployee()">👤 Add Employee</button><button class="btn secondary" onclick="show('attendance')">✓ Attendance</button><button class="btn secondary" onclick="show('leave')">📅 Leave</button><button class="btn secondary" onclick="show('schedule')">⚡ AI Schedule</button><button class="btn secondary" onclick="show('fleet')">🚌 Fleet</button><button class="btn danger" onclick="show('emergency')">🚨 Emergency</button><button class="btn secondary" onclick="show('replacement')">🔄 Replacement</button><button class="btn secondary" onclick="show('performance')">🏆 Performance</button></div></div></section>
+
+<section id="employees" class="screen"><div class="row"><div><div class="title">Employees</div><div class="muted">Add, edit and manage staff</div></div><button class="btn primary small" onclick="openAddEmployee()">＋ Add</button></div><input id="empSearch" class="input" oninput="renderEmployees()" placeholder="🔍 Search employee"><div id="empList"></div></section>
+
+<section id="attendance" class="screen"><div class="title">Attendance</div><div class="muted">Time + optional GPS saved on this device</div><div class="card"><div id="attStatus"></div><div class="grid"><button class="btn primary" onclick="checkIn()">📍 Check In</button><button class="btn secondary" onclick="checkOut()">⏱ Check Out</button></div></div><div id="attList"></div></section>
+
+<section id="schedule" class="screen"><div class="row"><div><div class="title">AI Smart Scheduler</div><div class="muted">Auto-balances available staff</div></div><button class="btn primary small" onclick="generateSchedule()">⚡ Generate</button></div><div id="scheduleList"></div></section>
+
+<section id="leave" class="screen"><div class="title">🤖 AI Leave Assistant</div><div class="card"><input id="leaveType" class="input" placeholder="Leave type"><div class="grid"><input id="from" type="date" class="input"><input id="to" type="date" class="input"></div><textarea id="reason" class="textarea" placeholder="Reason"></textarea><button class="btn primary" style="width:100%" onclick="applyLeave()">Submit Leave</button></div><div id="leaveList"></div></section>
+
+<section id="fleet" class="screen"><div class="title">Fleet & Predictive Maintenance</div><div id="fleetList"></div></section>
+<section id="reports" class="screen"><div class="title">Reports & Analytics</div><div id="report"></div></section>
+<section id="feedback" class="screen"><div class="title">⭐ Passenger Feedback</div><div class="card"><select id="rating" class="select"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select><textarea id="fb" class="textarea" placeholder="Feedback"></textarea><button class="btn primary" style="width:100%" onclick="feedback()">Submit</button></div></section>
+<section id="emergency" class="screen"><div class="title">🚨 Fault & Emergency Hub</div><div class="card"><input id="alertTitle" class="input" placeholder="Alert title"><textarea id="alertMsg" class="textarea" placeholder="Emergency message"></textarea><button class="btn danger" style="width:100%" onclick="broadcast()">📢 Send Broadcast</button></div><div id="alertList"></div></section>
+
+<section id="replacement" class="screen">
+<div class="title">🔄 Smart Replacement Finder</div>
+<div class="muted">Find available staff when someone is absent.</div>
+<div class="card"><select id="replaceRole" class="select"><option>Driver</option><option>Conductor</option><option>Mechanic</option></select><button class="btn primary" style="width:100%" onclick="findReplacement()">Find Best Replacement</button></div>
+<div id="replacementList"></div>
+</section>
+
+<section id="performance" class="screen">
+<div class="title">🏆 Performance & Fatigue</div>
+<div class="muted">AI-style demo score based on attendance, punctuality and workload.</div>
+<div id="performanceList"></div>
+</section>
+
+<section id="incidents" class="screen">
+<div class="title">🛠️ Incident & Breakdown Hub</div>
+<div class="card"><select id="incidentBus" class="select"></select><select id="incidentType" class="select"><option>Breakdown</option><option>Accident</option><option>Delay</option><option>Medical</option><option>Road Block</option></select><textarea id="incidentMsg" class="textarea" placeholder="Describe incident"></textarea><button class="btn danger" style="width:100%" onclick="reportIncident()">Report Incident</button></div>
+<div id="incidentList"></div>
+</section>
+
+<section id="shiftSwap" class="screen">
+<div class="title">🔁 Shift Swap</div>
+<div class="muted">Request a shift exchange without manual paperwork.</div>
+<div class="card"><select id="swapWith" class="select"></select><input id="swapDate" type="date" class="input"><select id="swapShift" class="select"><option>Morning</option><option>Afternoon</option><option>Night</option></select><button class="btn primary" style="width:100%" onclick="requestSwap()">Send Swap Request</button></div>
+<div id="swapList"></div>
+</section>
+
+<section id="insights" class="screen">
+<div class="title">🧠 Depot Intelligence</div>
+<div class="muted">A judge-friendly view of operational risks and opportunities.</div>
+<div id="intelligenceBox"></div>
+</section>
+<section id="more" class="screen"><div class="title">More</div>
+<div class="card"><b>Smart Features</b><div class="grid" style="margin-top:10px">
+<button class="btn secondary" onclick="show('replacement')">🔄 Replacement</button>
+<button class="btn secondary" onclick="show('performance')">🏆 Performance</button>
+<button class="btn secondary" onclick="show('incidents')">🛠️ Incidents</button>
+<button class="btn secondary" onclick="show('shiftSwap')">🔁 Shift Swap</button>
+<button class="btn secondary" onclick="show('insights')">🧠 Intelligence</button>
+</div></div><div class="card"><b>🤖 AI Assistant</b><p id="aiText" class="muted">I can help with attendance, leave, fleet and scheduling.</p><button class="btn secondary" onclick="ai()">Ask AI</button></div><div class="card"><button class="btn secondary" style="width:100%" onclick="logout()">Logout</button></div></section>
+</main>
+<nav class="nav"><button class="active" onclick="show('dashboard',this)"><i>⌂</i>Dashboard</button><button onclick="show('employees',this)"><i>♙</i>Employees</button><button onclick="show('schedule',this)"><i>▣</i>Schedule</button><button onclick="show('attendance',this)"><i>✓</i>Attendance</button><button onclick="show('more',this)"><i>•••</i>More</button></nav></div>
+<div id="toast" class="toast"></div><div id="modal" class="modal"><div id="modalBox" class="modalbox"></div></div>
+<script>
+const KEY="lalpari_online_ready_v1"; let state=JSON.parse(localStorage.getItem(KEY)||"null")||{users:[{id:1,eid:"ADMIN001",name:"Depot Admin",role:"Admin",status:"Active",password:"1234"},{id:2,eid:"EMP1001",name:"Priya S.",role:"Driver",status:"Active",password:"1234"},{id:3,eid:"EMP1002",name:"Rahul K.",role:"Driver",status:"Active",password:"1234"},{id:4,eid:"EMP1003",name:"Amit P.",role:"Conductor",status:"Active",password:"1234"}],attendance:[],leave:[],schedule:[],fleet:[{bus:"MH12AB1234",status:"Running",due:"Tomorrow",battery:82},{bus:"MH14XY6789",status:"Running",due:"4 days",battery:91},{bus:"MH15CD4321",status:"Maintenance",due:"Today",battery:65}],feedback:[],alerts:[]}; let me=null;
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function toast(s){let x=document.getElementById("toast");x.textContent=s;x.style.display="block";setTimeout(()=>x.style.display="none",2200)}
+function login(){let u=state.users.find(x=>x.eid===uid.value&&x.password===pwd.value);if(!u)return toast("Invalid ID or password");me=u;localStorage.setItem("lalpari_session",u.id);document.getElementById("login").classList.add("hide");document.getElementById("app").classList.remove("hide");userBadge.textContent=u.name;renderAll();toast("Login successful")}
+function logout(){localStorage.removeItem("lalpari_session");location.reload()}
+function show(id,btn){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));if(btn)btn.classList.add("active");renderAll()}
+function date(){return new Date().toISOString().slice(0,10)} function now(){return new Date().toLocaleString()}
+function renderAll(){renderDash();renderEmployees();renderAttendance();renderSchedule();renderLeave();renderFleet();renderReport();renderAlerts();renderPerformance();renderIncidents();renderSwaps();renderIntelligence();populateSelectors()}
+function renderDash(){let d=date(),present=state.attendance.filter(x=>x.date===d&&x.in).length,total=state.users.filter(x=>x.status==="Active").length;stats.innerHTML=`<div class="stat"><b class="ok">${present}</b><span>Present Today</span></div><div class="stat"><b class="red">${Math.max(total-present,0)}</b><span>Absent</span></div><div class="stat"><b>${state.fleet.filter(x=>x.status==="Running").length}</b><span>Running Buses</span></div><div class="stat"><b class="orange">${state.fleet.filter(x=>x.status==="Maintenance").length}</b><span>Maintenance</span></div>`;insights.textContent=`${state.leave.filter(x=>x.status==="Pending").length} leave request(s) pending • ${state.fleet.filter(x=>x.battery<70).length} bus(es) need attention • ${state.incidents.length} incident(s) logged. Tap Depot Intelligence for smart recommendations.`}
+function renderEmployees(){let q=(empSearch?.value||"").toLowerCase();let a=state.users.filter(x=>(x.name+x.eid+x.role).toLowerCase().includes(q));empList.innerHTML=a.map(x=>`<div class="card"><div class="row"><div><b>${x.name}</b><div class="muted">${x.eid} • ${x.role}</div></div><span class="${x.status==="Active"?"ok":"orange"}">${x.status}</span></div>${me?.role==="Admin"?`<div style="margin-top:9px"><button class="btn secondary small" onclick="editEmp(${x.id})">Edit</button> <button class="btn danger small" onclick="delEmp(${x.id})">Delete</button></div>`:""}</div>`).join("")}
+function openModal(s){modalBox.innerHTML=s;modal.classList.add("show")}function closeModal(){modal.classList.remove("show")}
+function openAddEmployee(){if(me.role!=="Admin")return toast("Admin only");openModal(`<h3>Add Employee</h3><input id="n" class="input" placeholder="Name"><input id="e" class="input" placeholder="Employee ID"><select id="r" class="select"><option>Driver</option><option>Conductor</option><option>Mechanic</option><option>Supervisor</option></select><input id="p" class="input" value="1234" placeholder="Password"><button class="btn primary" style="width:100%" onclick="addEmp()">Save Employee</button>`)}
+function addEmp(){if(!n.value||!e.value)return toast("Fill required fields");if(state.users.some(x=>x.eid===e.value))return toast("Employee ID already exists");state.users.push({id:Date.now(),eid:e.value,name:n.value,role:r.value,status:"Active",password:p.value||"1234"});save();closeModal();renderAll();toast("Employee added & saved")}
+function editEmp(id){let x=state.users.find(u=>u.id===id);openModal(`<h3>Edit Employee</h3><input id="n" class="input" value="${x.name}"><select id="r" class="select"><option ${x.role==="Driver"?"selected":""}>Driver</option><option ${x.role==="Conductor"?"selected":""}>Conductor</option><option ${x.role==="Mechanic"?"selected":""}>Mechanic</option><option ${x.role==="Supervisor"?"selected":""}>Supervisor</option></select><select id="s" class="select"><option>Active</option><option>Late</option><option>On Leave</option></select><button class="btn primary" style="width:100%" onclick="saveEmp(${id})">Save Changes</button>`)}
+function saveEmp(id){let x=state.users.find(u=>u.id===id);x.name=n.value;x.role=r.value;x.status=s.value;save();closeModal();renderAll();toast("Employee updated")}
+function delEmp(id){if(confirm("Delete employee?")){state.users=state.users.filter(x=>x.id!==id);save();renderAll();toast("Employee deleted")}}
+function myAtt(){return state.attendance.find(x=>x.user===me.id&&x.date===date())}
+async function geo(){return new Promise(res=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>res({lat:p.coords.latitude,lon:p.coords.longitude}),()=>res({}),{enableHighAccuracy:true}):res({}))}
+async function checkIn(){let a=myAtt();if(a?.in)return toast("Already checked in");let g=await geo();state.attendance.push({id:Date.now(),user:me.id,date:date(),in:now(),out:"",lat:g.lat,lon:g.lon});save();renderAll();toast("Attendance saved")}
+function checkOut(){let a=myAtt();if(!a)return toast("Check in first");if(a.out)return toast("Already checked out");a.out=now();save();renderAll();toast("Check-out saved")}
+function renderAttendance(){let a=myAtt();attStatus.innerHTML=a?`<b>Today's Attendance</b><p class="muted">Check-in: ${a.in}<br>Check-out: ${a.out||"Not yet"}<br>${a.lat?`GPS: ${a.lat.toFixed(5)}, ${a.lon.toFixed(5)}`:"GPS not captured"}</p>`:`<b>Not marked today</b><p class="muted">Tap Check In to mark attendance.</p>`;let all=state.attendance.slice().reverse();if(me?.role==="Admin")attList.innerHTML=all.map(a=>{let u=state.users.find(x=>x.id===a.user)||{};return `<div class="card"><b>${u.name}</b><div class="muted">${a.date} • In ${a.in||"-"} • Out ${a.out||"-"}</div></div>`}).join("")}
+function applyLeave(){if(!leaveType.value||!from.value||!to.value)return toast("Fill all leave details");state.leave.push({id:Date.now(),user:me.id,type:leaveType.value,from:from.value,to:to.value,reason:reason.value,status:"Pending"});save();renderAll();toast("Leave request submitted")}
+function renderLeave(){let a=state.leave.filter(x=>me.role==="Admin"||x.user===me.id).slice().reverse();leaveList.innerHTML=a.map(x=>{let u=state.users.find(y=>y.id===x.user)||{};return `<div class="card"><div class="row"><b>${u.name}</b><span class="badge">${x.status}</span></div><div class="muted">${x.type} • ${x.from} → ${x.to}</div>${me.role==="Admin"&&x.status==="Pending"?`<br><button class="btn secondary small" onclick="leaveAction(${x.id},'Approved')">Approve</button> <button class="btn danger small" onclick="leaveAction(${x.id},'Rejected')">Reject</button>`:""}</div>`}).join("")}
+function leaveAction(id,s){let x=state.leave.find(x=>x.id===id);x.status=s;save();renderAll();toast(s)}
+function generateSchedule(){if(me.role!=="Admin")return toast("Admin only");let d=date(),roles=state.users.filter(x=>x.status==="Active"&&x.role!=="Admin");roles.slice(0,6).forEach((u,i)=>state.schedule.push({id:Date.now()+i,user:u.id,shift:["Morning","Afternoon","Night"][i%3],date:d,start:["06:00","14:00","22:00"][i%3],end:["14:00","22:00","06:00"][i%3]}));save();renderAll();toast("AI schedule generated & saved")}
+function renderSchedule(){scheduleList.innerHTML=state.schedule.slice().reverse().map(x=>{let u=state.users.find(y=>y.id===x.user)||{};return `<div class="card"><div class="row"><b>${u.name}</b><span class="badge">${x.shift}</span></div><div class="muted">${x.date} • ${x.start} - ${x.end}</div></div>`}).join("")||`<div class="card muted">No schedule generated yet.</div>`}
+function renderFleet(){fleetList.innerHTML=state.fleet.map((x,i)=>`<div class="card"><div class="row"><b>🚌 ${x.bus}</b><span class="${x.status==="Running"?"ok":x.status==="Maintenance"?"red":"orange"}">${x.status}</span></div><div class="muted">Maintenance: ${x.due} • Battery health: ${x.battery}%</div><div class="bar" style="margin-top:8px"><span style="width:${x.battery}%"></span></div>${me.role==="Admin"?`<br><button class="btn secondary small" onclick="updateBus(${i})">Update</button>`:""}</div>`).join("")}
+function updateBus(i){let x=state.fleet[i];openModal(`<h3>Update ${x.bus}</h3><select id="bs" class="select"><option>Running</option><option>Idle</option><option>Maintenance</option><option>Unavailable</option></select><input id="bb" class="input" type="number" min="0" max="100" value="${x.battery}"><input id="bd" class="input" value="${x.due}"><button class="btn primary" style="width:100%" onclick="saveBus(${i})">Save</button>`)}
+function saveBus(i){state.fleet[i].status=bs.value;state.fleet[i].battery=+bb.value;state.fleet[i].due=bd.value;save();closeModal();renderAll();toast("Fleet updated")}
+function renderReport(){let total=state.users.filter(x=>x.status==="Active").length,p=state.attendance.filter(x=>x.date===date()).length;report.innerHTML=`<div class="grid"><div class="stat"><b>${p}</b><span>Attendance records today</span></div><div class="stat"><b>${total}</b><span>Active employees</span></div><div class="stat"><b>${state.schedule.filter(x=>x.date===date()).length}</b><span>Today's shifts</span></div><div class="stat"><b>${state.leave.filter(x=>x.status==="Pending").length}</b><span>Pending leaves</span></div></div><div class="card"><b>Operational status</b><p class="muted">All records are persisted in this browser's local database storage.</p></div>`}
+function feedback(){if(!fb.value)return toast("Write feedback");state.feedback.push({rating:+rating.value,msg:fb.value,date:now()});save();fb.value="";toast("Feedback submitted")}
+function broadcast(){if(me.role!=="Admin")return toast("Admin only");if(!alertTitle.value||!alertMsg.value)return toast("Fill alert");state.alerts.push({title:alertTitle.value,msg:alertMsg.value,date:now()});save();renderAlerts();toast("Broadcast saved")}
+function renderAlerts(){alertList.innerHTML=state.alerts.slice().reverse().map(x=>`<div class="card"><b>🚨 ${x.title}</b><p class="muted">${x.msg}</p><small>${x.date}</small></div>`).join("")}
+
+function seedDemo(){
+  if(state.demoSeeded)return;
+  const d=date();
+  const demo=[
+    [5,"EMP1004","Suresh T.","Mechanic"],[6,"EMP1005","Neha M.","Conductor"],[7,"EMP1006","Kiran J.","Driver"],
+    [8,"EMP1007","Pooja R.","Driver"],[9,"EMP1008","Vikas P.","Conductor"],[10,"EMP1009","Sneha K.","Mechanic"],
+    [11,"EMP1010","Omkar D.","Driver"],[12,"EMP1011","Riya N.","Conductor"],[13,"EMP1012","Manish G.","Driver"]
+  ];
+  demo.forEach(x=>state.users.push({id:x[0],eid:x[1],name:x[2],role:x[3],status:"Active",password:"1234"}));
+  const presentIds=[2,3,4,7,8,10,11,13];
+  presentIds.forEach((id,i)=>state.attendance.push({id:500+i,user:id,date:d,in:`${d} ${String(6+i).padStart(2,"0")}:${i%2?"18":"04"}`,out:""}));
+  state.leave=[
+    {id:701,user:6,type:"Casual Leave",from:d,to:d,reason:"Family work",status:"Pending"},
+    {id:702,user:9,type:"Medical Leave",from:d,to:d,reason:"Medical appointment",status:"Approved"}
+  ];
+  state.schedule=[
+    {id:801,user:2,shift:"Morning",date:d,start:"06:00",end:"14:00"},
+    {id:802,user:3,shift:"Afternoon",date:d,start:"14:00",end:"22:00"},
+    {id:803,user:7,shift:"Morning",date:d,start:"06:00",end:"14:00"},
+    {id:804,user:8,shift:"Night",date:d,start:"22:00",end:"06:00"},
+    {id:805,user:11,shift:"Afternoon",date:d,start:"14:00",end:"22:00"}
+  ];
+  state.feedback=[
+    {rating:5,msg:"Driver was polite and on time.",date:"Today 08:42"},
+    {rating:4,msg:"Bus was clean. Slight delay.",date:"Today 09:15"},
+    {rating:5,msg:"Very smooth journey.",date:"Today 10:03"}
+  ];
+  state.alerts=[
+    {title:"Route 4 Delay",msg:"Traffic detected near main junction. Supervisor notified.",date:"Today 09:40"},
+    {title:"Maintenance Reminder",msg:"MH15CD4321 requires inspection before next dispatch.",date:"Today 10:05"}
+  ];
+  state.incidents=[
+    {id:901,bus:"MH15CD4321",type:"Breakdown",msg:"Engine inspection required",date:"Today 09:58",status:"Open"}
+  ];
+  state.swaps=[
+    {id:951,from:6,to:3,date:d,shift:"Afternoon",status:"Pending"}
+  ];
+  state.demoSeeded=true;
+  save();
+}
+function populateSelectors(){
+  if(!incidentBus||!swapWith)return;
+  incidentBus.innerHTML=state.fleet.map(x=>`<option>${x.bus}</option>`).join("");
+  swapWith.innerHTML=state.users.filter(x=>x.id!==me?.id&&x.role!=="Admin").map(x=>`<option value="${x.id}">${x.name} • ${x.role}</option>`).join("");
+}
+function findReplacement(){
+  const role=replaceRole.value;
+  const todayIds=new Set(state.attendance.filter(x=>x.date===date()&&x.in).map(x=>x.user));
+  const candidates=state.users.filter(x=>x.role===role&&x.status==="Active"&&!todayIds.has(x.id));
+  const ranked=candidates.map((x,i)=>({x,score:92-i*4})).slice(0,4);
+  replacementList.innerHTML=ranked.length?ranked.map(r=>`<div class="card"><div class="row"><div><b>${r.x.name}</b><div class="muted">${r.x.eid} • ${r.x.role}</div></div><span class="ok">${r.score}% match</span></div><button class="btn secondary small" onclick="assignReplacement(${r.x.id})">Assign</button></div>`).join(""):`<div class="card muted">No available ${role.toLowerCase()} found.</div>`;
+}
+function assignReplacement(id){
+  const u=state.users.find(x=>x.id===id);
+  toast(`${u.name} selected as replacement`);
+}
+function renderPerformance(){
+  if(!performanceList)return;
+  const active=state.users.filter(x=>x.role!=="Admin"&&x.status==="Active");
+  performanceList.innerHTML=active.map((u,i)=>{
+    const a=state.attendance.filter(x=>x.user===u.id).length;
+    const score=Math.max(72,Math.min(98,88+(a%7)-Math.floor(i/4)));
+    const fatigue=Math.max(18,Math.min(82,35+(i*5)%45));
+    return `<div class="card"><div class="row"><div><b>${i+1}. ${u.name}</b><div class="muted">${u.role}</div></div><span class="ok"><b>${score}%</b></span></div><div class="muted" style="margin-top:7px">Performance score • Fatigue ${fatigue}%</div><div class="bar" style="margin-top:7px"><span style="width:${score}%"></span></div></div>`;
+  }).join("");
+}
+function reportIncident(){
+  if(!incidentMsg.value)return toast("Describe the incident");
+  state.incidents.push({id:Date.now(),bus:incidentBus.value,type:incidentType.value,msg:incidentMsg.value,date:now(),status:"Open"});
+  save();incidentMsg.value="";renderIncidents();renderDash();toast("Incident logged & control room notified");
+}
+function renderIncidents(){
+  if(!incidentList)return;
+  incidentList.innerHTML=state.incidents.slice().reverse().map(x=>`<div class="card"><div class="row"><b>🚨 ${x.type}</b><span class="badge">${x.status}</span></div><div class="muted">${x.bus} • ${x.date}</div><p>${x.msg}</p></div>`).join("")||`<div class="card muted">No incidents.</div>`;
+}
+function requestSwap(){
+  if(!swapDate.value)return toast("Select date");
+  state.swaps.push({id:Date.now(),from:me.id,to:+swapWith.value,date:swapDate.value,shift:swapShift.value,status:"Pending"});
+  save();renderSwaps();toast("Shift swap request sent");
+}
+function renderSwaps(){
+  if(!swapList)return;
+  swapList.innerHTML=state.swaps.slice().reverse().map(x=>{
+    const f=state.users.find(u=>u.id===x.from)||{},t=state.users.find(u=>u.id===x.to)||{};
+    return `<div class="card"><b>${f.name} ↔ ${t.name}</b><div class="muted">${x.date} • ${x.shift} shift • ${x.status}</div>${me?.role==="Admin"&&x.status==="Pending"?`<br><button class="btn secondary small" onclick="approveSwap(${x.id})">Approve</button>`:""}</div>`;
+  }).join("");
+}
+function approveSwap(id){const x=state.swaps.find(s=>s.id===id);x.status="Approved";save();renderSwaps();toast("Shift swap approved")}
+function renderIntelligence(){
+  if(!intelligenceBox)return;
+  const absent=Math.max(state.users.filter(x=>x.status==="Active"&&x.role!=="Admin").length-state.attendance.filter(x=>x.date===date()).length,0);
+  const low=state.fleet.filter(x=>x.battery<70).length;
+  const pending=state.leave.filter(x=>x.status==="Pending").length;
+  intelligenceBox.innerHTML=`
+  <div class="grid">
+    <div class="stat"><b class="red">${absent}</b><span>Staff not checked in</span></div>
+    <div class="stat"><b class="orange">${low}</b><span>High-priority buses</span></div>
+    <div class="stat"><b class="purple">${pending}</b><span>Pending leaves</span></div>
+    <div class="stat"><b class="ok">${state.feedback.filter(x=>x.rating>=4).length}</b><span>Positive feedback</span></div>
+  </div>
+  <div class="card"><b>AI Recommendations</b>
+  <p class="muted">1. Use Smart Replacement Finder for absent ${state.users.filter(x=>x.status==="Active"&&x.role!=="Admin").slice(0,1).map(x=>x.role).join("")||"staff"}.</p>
+  <p class="muted">2. Prioritize ${low?state.fleet.filter(x=>x.battery<70)[0].bus:"fleet"} for maintenance.</p>
+  <p class="muted">3. ${pending?pending+" leave request(s) need approval.":"No urgent leave approvals pending."}</p></div>`;
+}
+function ai(){let abs=Math.max(state.users.filter(x=>x.status==="Active").length-state.attendance.filter(x=>x.date===date()).length,0);aiText.textContent=`AI Insight: ${abs} active employee(s) have not checked in today. ${state.fleet.filter(x=>x.battery<70).length} bus(es) need maintenance attention.`}
+seedDemo();
+(function(){let id=+localStorage.getItem("lalpari_session");if(id){me=state.users.find(x=>x.id===id);if(me){document.getElementById("login").classList.add("hide");document.getElementById("app").classList.remove("hide");userBadge.textContent=me.name;renderAll()}}})();
+</script></body></html>
