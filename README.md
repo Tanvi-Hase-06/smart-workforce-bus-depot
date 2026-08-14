@@ -4,13 +4,19 @@
 
 ### Problem Statement
 
-Bus depots rely heavily on manual processes for staff scheduling, attendance, duty allocation and leave management, leading to operational inefficiencies and reduced service reliability.
+Bus depots rely heavily on manual processes for staff scheduling, attendance, duty allocation, and leave management, leading to operational inefficiencies and reduced service reliability.
 
 ### Our Solution
 
-LALPARI is a digital workforce management platform that simplifies workforce planning, attendance, duty allocation and leave management through a centralized system.
+**LALPARI** is a digital workforce and operations management platform designed to simplify staff scheduling, attendance, duty allocation, leave management, and workforce monitoring through a centralized system.
 
-### Key Features
+The solution focuses on improving workforce utilization, reducing administrative effort, and supporting reliable bus depot operations.
+
+---
+
+## Key Features
+
+### Core Features – Given Problem
 
 - Staff Scheduling
 - Duty Allocation
@@ -20,52 +26,37 @@ LALPARI is a digital workforce management platform that simplifies workforce pla
 - Performance Insights
 - Employee Mobile Application
 
-### Innovation 
+### Innovative Features
 
-- AI Assistant for employee queries and leave-related assistance
-- Emergency Alert for drivers ,mechanic and conductors
-- Bus Fault & Maintenance Reporting
-- AI based duty allocation or swap duties
+- **AI Assistant** – Assists employees with queries and leave-related tasks.
+- **Emergency Alert** – Enables quick communication with drivers, conductors, and mechanics during emergencies.
+- **Bus Fault & Maintenance Reporting** – Allows bus-related faults and maintenance issues to be reported for quick action.
+- **AI-Assisted Duty Allocation & Duty Swap** – Helps manage duty allocation and supports suitable duty swaps based on availability.
 
+---
 
-### Technology Stack
+## Technical Approach
 
-- HTML
-- CSS
-- JavaScript
+- **Frontend:** HTML, CSS, JavaScript
+- **Mobile/Prototype:** Flutter
+- **Backend:** Node.js
+- **Database:** MongoDB
+- **Location Services:** GPS-Based Tracking
+- **AI:** AI-Assisted Scheduling and Employee Assistance
 
-### Project Structure
+---
+
+## Project Structure
 
 
 smart-workforce-bus-depot/
 │
-├── README.md
-│
 ├── frontend/
 │   └── index.html
 │
-└── docs/
-    └── Project_Documentation.pdf
-
-##Prototype
-
-The project includes a working prototype demonstrating the proposed workforce management system and its major workflows.
-
-##Expected Impact
-
-Optimized workforce utilization
-Reduced administrative effort
-Improved service reliability
-Transparent attendance management
-Better operational planning
-
-##Team Phoenix
-Tanvi – Electrical Engineering
-Samruddhi – Electrical Engineering
-Vedika – Electrical Engineering
-Priti – Information Technology
-
-##Hackathon
-
-SKH Hackathon 2026
-Sanjivani University
+├── docs/
+│   └── LALPARI_Project_Documentation.pdf
+│
+├── README.md
+│
+└── .gitignore
